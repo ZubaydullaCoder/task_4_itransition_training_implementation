@@ -10,11 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock } from "lucide-react";
+import { toast } from "react-hot-toast";
+import { showErrorToast, showSuccessToast } from "@/lib/toast-config";
 
 export function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  // const [error, setError] = useState("");
+  // const [successMessage, setSuccessMessage] = useState("");
 
   const {
     register,
@@ -27,7 +30,8 @@ export function LoginForm() {
   const onSubmit = async (data: LoginInput) => {
     try {
       setIsLoading(true);
-      setError("");
+      // setError("");
+      // setSuccessMessage("");
 
       const result = await signIn("credentials", {
         email: data.email,
@@ -36,17 +40,25 @@ export function LoginForm() {
       });
 
       if (result?.error) {
-        setError(result.error);
+        // setError(result.error);
+        showErrorToast(result.error);
         return;
       }
 
-      // Successful login - redirect to admin/users page
-      router.push("/admin/users");
-      // Force a page refresh to ensure all states are updated
-      router.refresh();
-    } catch (error: unknown) {
-      console.error(error);
-      setError("Something went wrong");
+      // Show success message
+      showSuccessToast("Welcome back! Redirecting to dashboard...");
+      // setSuccessMessage("Welcome back! Redirecting to dashboard...");
+
+      // Redirect with a small delay for better UX
+      setTimeout(() => {
+        router.push("/admin/users");
+        router.refresh();
+      }, 1000);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Something went wrong";
+      // setError(errorMessage);
+      showErrorToast(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -54,11 +66,16 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && (
+      {/* {error && (
         <div className="p-3 rounded-md bg-red-50 text-red-500 text-sm">
           {error}
         </div>
       )}
+      {successMessage && (
+        <div className="p-3 rounded-md bg-green-200 text-white text-sm">
+          {successMessage}
+        </div>
+      )} */}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <div className="relative">

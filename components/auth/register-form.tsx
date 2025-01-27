@@ -11,12 +11,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User, Mail, Lock, Building } from "lucide-react";
 import Link from "next/link";
+import { toast } from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/toast-config";
 
 export function RegisterForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-
+  // const [error, setError] = useState("");
+  // const [successMessage, setSuccessMessage] = useState("");
   const {
     register,
     handleSubmit,
@@ -28,8 +30,8 @@ export function RegisterForm() {
   const onSubmit = async (data: RegisterInput) => {
     try {
       setIsLoading(true);
-      setError("");
-
+      // setError("");
+      // setSuccessMessage("");
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -42,9 +44,20 @@ export function RegisterForm() {
         throw new Error(result.error);
       }
 
-      router.push("/login");
+      // Show success message
+      showSuccessToast("Account created successfully! Redirecting to login...");
+      // setSuccessMessage(
+      //   "Account created successfully! Redirecting to login..."
+      // );
+      // Redirect after a short delay
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Something went wrong");
+      // setError(error instanceof Error ? error.message : "Something went wrong");
+      showErrorToast(
+        error instanceof Error ? error.message : "Something went wrong"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -52,11 +65,16 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && (
+      {/* {error && (
         <div className="p-3 rounded-md bg-red-50 text-red-500 text-sm">
           {error}
         </div>
       )}
+      {successMessage && (
+        <div className="p-3 rounded-md bg-green-200 text-white text-sm">
+          {successMessage}
+        </div>
+      )} */}
       <div className="space-y-2">
         <Label htmlFor="name">Name</Label>
         <div className="relative">

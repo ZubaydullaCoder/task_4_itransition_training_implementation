@@ -4,6 +4,7 @@ import "../styles/globals.css";
 import { AuthProvider } from "@/providers/auth-provider";
 import QueryProvider from "@/providers/QueryProvider";
 import { Toaster } from "react-hot-toast";
+import { toastConfig } from "@/lib/toast-config";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -34,24 +35,7 @@ export default function RootLayout({
         <AuthProvider>
           <QueryProvider>{children}</QueryProvider>
         </AuthProvider>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 3000,
-            success: {
-              style: {
-                background: "green",
-                color: "white",
-              },
-            },
-            error: {
-              style: {
-                background: "red",
-                color: "white",
-              },
-            },
-          }}
-        />
+        <Toaster position="top-right" toastOptions={toastConfig} />
       </body>
     </html>
   );
