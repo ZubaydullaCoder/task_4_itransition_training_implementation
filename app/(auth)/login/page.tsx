@@ -23,7 +23,6 @@ export default function LoginPage() {
         <Link
           href="/register"
           replace={true}
-          shallow={true}
           className="text-primary hover:underline"
         >
           Sign up

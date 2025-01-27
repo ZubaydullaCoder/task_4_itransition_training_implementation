@@ -9,14 +9,13 @@ import { LoginInput, loginSchema } from "@/lib/validations/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { showErrorToast, showSuccessToast } from "@/lib/toast-config";
 
 export function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  // const [error, setError] = useState("");
-  // const [successMessage, setSuccessMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -29,9 +28,6 @@ export function LoginForm() {
   const onSubmit = async (data: LoginInput) => {
     try {
       setIsLoading(true);
-      // setError("");
-      // setSuccessMessage("");
-
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
@@ -39,14 +35,12 @@ export function LoginForm() {
       });
 
       if (result?.error) {
-        // setError(result.error);
         showErrorToast(result.error);
         return;
       }
 
       // Show success message
       showSuccessToast("Welcome back! Redirecting to dashboard...");
-      // setSuccessMessage("Welcome back! Redirecting to dashboard...");
 
       // Redirect with a small delay for better UX
       setTimeout(() => {
@@ -56,7 +50,7 @@ export function LoginForm() {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Something went wrong";
-      // setError(errorMessage);
+
       showErrorToast(errorMessage);
     } finally {
       setIsLoading(false);
@@ -65,16 +59,6 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* {error && (
-        <div className="p-3 rounded-md bg-red-50 text-red-500 text-sm">
-          {error}
-        </div>
-      )}
-      {successMessage && (
-        <div className="p-3 rounded-md bg-green-200 text-white text-sm">
-          {successMessage}
-        </div>
-      )} */}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <div className="relative">
@@ -104,11 +88,17 @@ export function LoginForm() {
           <Input
             {...register("password")}
             id="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="••••••••"
-            className="pl-10"
+            className="pl-10 pr-10"
             disabled={isLoading}
           />
+          <div
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </div>
         </div>
         {errors.password && (
           <p className="text-sm text-red-500">{errors.password.message}</p>

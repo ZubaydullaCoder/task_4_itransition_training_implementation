@@ -9,15 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, Mail, Lock, Building } from "lucide-react";
+import { User, Mail, Lock, Building, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { showSuccessToast, showErrorToast } from "@/lib/toast-config";
 
 export function RegisterForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  // const [error, setError] = useState("");
-  // const [successMessage, setSuccessMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -29,8 +29,6 @@ export function RegisterForm() {
   const onSubmit = async (data: RegisterInput) => {
     try {
       setIsLoading(true);
-      // setError("");
-      // setSuccessMessage("");
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -45,15 +43,12 @@ export function RegisterForm() {
 
       // Show success message
       showSuccessToast("Account created successfully! Redirecting to login...");
-      // setSuccessMessage(
-      //   "Account created successfully! Redirecting to login..."
-      // );
+
       // Redirect after a short delay
       setTimeout(() => {
         router.push("/login");
       }, 2000);
     } catch (error) {
-      // setError(error instanceof Error ? error.message : "Something went wrong");
       showErrorToast(
         error instanceof Error ? error.message : "Something went wrong"
       );
@@ -64,16 +59,6 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* {error && (
-        <div className="p-3 rounded-md bg-red-50 text-red-500 text-sm">
-          {error}
-        </div>
-      )}
-      {successMessage && (
-        <div className="p-3 rounded-md bg-green-200 text-white text-sm">
-          {successMessage}
-        </div>
-      )} */}
       <div className="space-y-2">
         <Label htmlFor="name">Name</Label>
         <div className="relative">
@@ -145,11 +130,17 @@ export function RegisterForm() {
           <Input
             {...register("password")}
             id="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="••••••••"
-            className="pl-10"
+            className="pl-10 pr-10"
             disabled={isLoading}
           />
+          <div
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </div>
         </div>
         {errors.password && (
           <p className="text-sm text-red-500">{errors.password.message}</p>
