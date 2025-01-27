@@ -30,9 +30,7 @@ export function SortButton({
             className={cn(
               "h-4 w-4 transition-transform",
               sortConfig.field === field && "text-primary-brand",
-              sortConfig.field === field &&
-                sortConfig.direction === "asc" &&
-                "rotate-180"
+              sortConfig.field === field && "rotate-180"
             )}
           />
         </div>
