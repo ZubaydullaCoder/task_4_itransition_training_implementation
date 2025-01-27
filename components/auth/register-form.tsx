@@ -54,7 +54,7 @@ export function RegisterForm() {
       // Redirect after a short delay
       setTimeout(() => {
         router.push("/login");
-      }, 2000);
+      }, 800);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Something went wrong");
     } finally {
@@ -65,7 +65,7 @@ export function RegisterForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {error && (
-        <div className="p-3 rounded-md bg-red-50 text-red-500 text-sm">
+        <div className="flex justify-center p-3 rounded-md bg-red-50 text-red-500 text-sm">
           {error}
         </div>
       )}

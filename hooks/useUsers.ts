@@ -29,7 +29,7 @@ export function useUsers(sortConfig?: SortConfig) {
 
         if (!response.ok) {
           if (response.status === 403 && data.isBlocked) {
-            toast.error("Your account has been blocked");
+            // toast.error("Your account has been blocked");
             await signOut({
               redirect: true,
               callbackUrl: "/login",

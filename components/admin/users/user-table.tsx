@@ -53,7 +53,7 @@ import { ActionButton } from "./action-button";
 import { StatusCell } from "./status-cell";
 import { SortButton } from "./sort-button";
 import { SelectAllCheckbox } from "./select-all-checkbox";
-import { showSuccessToast } from "@/lib/toast-config";
+import { showSuccessToast, showErrorToast } from "@/lib/toast-config";
 
 interface User {
   id: string;
@@ -195,7 +195,10 @@ export function UserTable() {
       });
 
       if (isBlockingSelf) {
-        toast.success("Your account has been blocked. You will be logged out.");
+        showSuccessToast(
+          "You have just blocked your own account. You will be logged out."
+        );
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         setLoadingState(null);
         await signOut({
           redirect: true,
@@ -203,7 +206,6 @@ export function UserTable() {
         });
         return;
       }
-      await new Promise((resolve) => setTimeout(resolve, 1200));
     } catch (error) {
       console.error("Failed to block users:", error);
       toast.error("Failed to block users");
@@ -272,7 +274,9 @@ export function UserTable() {
       });
 
       if (isBlockingSelf) {
-        toast.success("Your account has been blocked. You will be logged out.");
+        showErrorToast(
+          "Your account has been blocked. You will be logged out."
+        );
         setLoadingState(null);
         await signOut({
           redirect: true,

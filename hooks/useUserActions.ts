@@ -1,8 +1,7 @@
-// hooks/useUserActions.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import { signOut } from "next-auth/react";
 
+import { showSuccessToast, showErrorToast } from "@/lib/toast-config";
 interface UserActionParams {
   userIds: string[];
   status?: "Active" | "Blocked";
@@ -36,7 +35,9 @@ export function useUserActions() {
     },
     onSuccess: (_, variables) => {
       invalidateUsersData();
-      toast.success(`User's status is ${variables.status?.toLowerCase()} now`);
+      showSuccessToast(
+        `User's status is ${variables.status?.toLowerCase()} now`
+      );
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to update users");
@@ -58,10 +59,10 @@ export function useUserActions() {
     },
     onSuccess: () => {
       invalidateUsersData();
-      toast.success("User deleted successfully");
+      showSuccessToast("User deleted successfully");
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Failed to delete users");
+      showErrorToast(error.message || "Failed to delete users");
     },
   });
 
