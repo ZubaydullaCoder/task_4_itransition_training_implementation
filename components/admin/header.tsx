@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
 
 interface HeaderProps {
   toggleSidebar: () => void;
