@@ -6,12 +6,19 @@ export const toastConfig: ToastOptions = {
     borderRadius: "var(--radius)",
     background: "hsl(var(--secondary))",
     color: "hsl(var(--secondary-foreground))",
+    zIndex: 100, // Add higher z-index
+  },
+  position: "top-right", // Ensure consistent positioning
+  toastOptions: {
+    // Custom class name for the toast container
+    className: "toast-message",
   },
   success: {
     style: {
       background: "hsl(var(--secondary))",
       color: "hsl(var(--secondary-foreground))",
       border: "1px solid hsl(var(--border))",
+      zIndex: 100, // Add higher z-index
     },
     iconTheme: {
       primary: "hsl(var(--primary))",
@@ -23,6 +30,7 @@ export const toastConfig: ToastOptions = {
       background: "hsl(var(--destructive) / 0.15)",
       color: "hsl(var(--destructive))",
       border: "1px solid hsl(var(--destructive) / 0.2)",
+      zIndex: 100, // Add higher z-index
     },
     iconTheme: {
       primary: "hsl(var(--destructive))",

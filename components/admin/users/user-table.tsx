@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useState,
-  useCallback,
-  forwardRef,
-  ButtonHTMLAttributes,
-  useMemo,
-} from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useUsers } from "@/hooks/useUsers";
 import { cn } from "@/lib/utils";
 import {
@@ -24,11 +18,9 @@ import { UserAvatar } from "@/components/admin/users/user-avatar";
 import { LastSeenIndicator } from "@/components/admin/users/last-seen-indicator";
 import {
   Loader2,
-  MoreVertical,
   Search,
   Download,
   Plus,
-  ArrowUpDown,
   ShieldOff,
   UserX,
   Shield,
@@ -55,8 +47,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { signOut, useSession } from "next-auth/react";
-
+import { UserActionsMenu } from "@/components/admin/users/user-actions-menu";
 import { UserTableFilter } from "./user-table-filter";
+import { ActionButton } from "./action-button";
+import { StatusCell } from "./status-cell";
+import { SortButton } from "./sort-button";
+import { SelectAllCheckbox } from "./select-all-checkbox";
 
 interface User {
   id: string;
@@ -91,60 +87,6 @@ const getUserStatus = (lastLogin: string): "online" | "offline" | "away" => {
   if (diffInMinutes < 5) return "online";
   if (diffInMinutes < 30) return "away";
   return "offline";
-};
-
-// Wrap the button component with forwardRef
-const ActionButton = forwardRef<
-  HTMLButtonElement,
-  ButtonHTMLAttributes<HTMLButtonElement> & {
-    icon: React.ReactNode;
-    loading?: boolean;
-    variant?:
-      | "default"
-      | "destructive"
-      | "outline"
-      | "secondary"
-      | "ghost"
-      | "link";
-    size?: "default" | "sm" | "lg" | "icon";
-  }
->(({ icon, loading, children, ...props }, ref) => (
-  <Button ref={ref} {...props}>
-    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : icon}
-    {children}
-  </Button>
-));
-ActionButton.displayName = "ActionButton";
-
-const StatusCell = ({
-  user,
-  loadingState,
-}: {
-  user: User;
-  loadingState: LoadingState | null;
-}) => {
-  const isLoading = loadingState?.userIds.includes(user.email);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center w-14">
-        <Loader2 className="h-4 w-4 animate-spin text-primary-brand" />
-      </div>
-    );
-  }
-
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-        user.status === "Active"
-          ? "bg-green-100 text-green-800"
-          : "bg-red-100 text-red-800"
-      )}
-    >
-      {user.status}
-    </span>
-  );
 };
 
 export function UserTable() {
@@ -210,38 +152,6 @@ export function UserTable() {
         prev.field === field && prev.direction === "desc" ? "asc" : "desc",
     }));
   }, []);
-
-  const SortButton = ({
-    field,
-    children,
-  }: {
-    field: keyof User;
-    children: React.ReactNode;
-  }) => (
-    <Button
-      variant="ghost"
-      onClick={() => handleSort(field)}
-      className="flex items-center gap-1 relative w-full justify-between"
-    >
-      <span className="flex items-center gap-2">
-        {children}
-        <div className="flex items-center gap-1">
-          <ArrowUpDown
-            className={cn(
-              "h-4 w-4 transition-transform",
-              sortConfig.field === field && "text-primary-brand",
-              sortConfig.field === field &&
-                sortConfig.direction === "asc" &&
-                "rotate-180"
-            )}
-          />
-        </div>
-      </span>
-      {sortConfig.field === field && (
-        <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary-brand" />
-      )}
-    </Button>
-  );
 
   // Memoized selection handlers
   const handleSelectAll = useCallback(() => {
@@ -343,6 +253,66 @@ export function UserTable() {
       setIsDeleteDialogOpen(false);
     } catch (error) {
       console.error("Failed to delete users:", error);
+    }
+  };
+
+  // Create separate handlers for individual actions
+  const handleIndividualBlock = async (userEmail: string) => {
+    setLoadingState({ type: "block", userIds: [userEmail] });
+    try {
+      const isBlockingSelf = userEmail === session?.user?.email;
+
+      await blockUsers.mutateAsync({
+        userIds: [userEmail],
+        status: "Blocked",
+      });
+
+      if (isBlockingSelf) {
+        toast.success("Your account has been blocked. You will be logged out.");
+        setLoadingState(null);
+        await signOut({
+          redirect: true,
+          callbackUrl: "/login",
+        });
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+    } catch (error) {
+      console.error("Failed to block user:", error);
+    } finally {
+      setLoadingState(null);
+    }
+  };
+
+  const handleIndividualUnblock = async (userEmail: string) => {
+    setLoadingState({ type: "unblock", userIds: [userEmail] });
+    try {
+      await blockUsers.mutateAsync({
+        userIds: [userEmail],
+        status: "Active",
+      });
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+    } catch (error) {
+      console.error("Failed to unblock user:", error);
+    } finally {
+      setLoadingState(null);
+    }
+  };
+
+  const handleIndividualDelete = async (userEmail: string) => {
+    try {
+      await deleteUsers.mutateAsync({
+        userIds: [userEmail],
+      });
+
+      // If current user is deleted, redirect to login
+      if (userEmail === session?.user?.email) {
+        await signOut({ redirect: false });
+        router.push("/login");
+        return;
+      }
+    } catch (error) {
+      console.error("Failed to delete user:", error);
     }
   };
 
@@ -452,22 +422,6 @@ export function UserTable() {
     );
   };
 
-  const SelectAllCheckbox = () => {
-    const isAllSelected =
-      users?.length > 0 && selectedUsers.length === users?.length;
-    // const isPartiallySelected =
-    //   selectedUsers.length > 0 && selectedUsers.length < (users?.length || 0);
-
-    return (
-      <Checkbox
-        checked={isAllSelected}
-        // data-state={isPartiallySelected ? "indeterminate" : undefined}
-        onCheckedChange={handleSelectAll}
-        aria-label="Select all users"
-      />
-    );
-  };
-
   // Only show loading state on initial load
   if (isLoading) {
     return (
@@ -511,19 +465,47 @@ export function UserTable() {
           <TableHeader>
             <TableRow>
               <TableHead className="w-12">
-                <SelectAllCheckbox />
+                <SelectAllCheckbox
+                  users={users}
+                  selectedUsers={selectedUsers}
+                  onSelectAll={handleSelectAll}
+                />
               </TableHead>
               <TableHead>
-                <SortButton field="name">Name</SortButton>
+                <SortButton
+                  field="name"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                >
+                  Name
+                </SortButton>
               </TableHead>
               <TableHead>
-                <SortButton field="email">Email</SortButton>
+                <SortButton
+                  field="email"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                >
+                  Email
+                </SortButton>
               </TableHead>
               <TableHead>
-                <SortButton field="lastLogin">Last Login</SortButton>
+                <SortButton
+                  field="lastLogin"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                >
+                  Last Login
+                </SortButton>
               </TableHead>
               <TableHead>
-                <SortButton field="status">Status</SortButton>
+                <SortButton
+                  field="status"
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                >
+                  Status
+                </SortButton>
               </TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
@@ -562,9 +544,20 @@ export function UserTable() {
                   <StatusCell user={user} loadingState={loadingState} />
                 </TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
+                  <UserActionsMenu
+                    user={user}
+                    loadingState={loadingState}
+                    onBlock={handleIndividualBlock}
+                    onUnblock={handleIndividualUnblock}
+                    onDelete={handleIndividualDelete}
+                    onActionComplete={() => {
+                      if (loadingState?.type === "delete") {
+                        setSelectedUsers((prev) =>
+                          prev.filter((id) => id !== user.email)
+                        );
+                      }
+                    }}
+                  />
                 </TableCell>
               </TableRow>
             ))}
