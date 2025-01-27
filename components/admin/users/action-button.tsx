@@ -2,7 +2,10 @@
 import { forwardRef, ButtonHTMLAttributes } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { ButtonVariant } from "@/types";
+import type { VariantProps } from "class-variance-authority";
+import { buttonVariants } from "@/components/ui/button";
+
+type ButtonVariant = VariantProps<typeof buttonVariants>["variant"];
 
 interface ActionButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon: React.ReactNode;
