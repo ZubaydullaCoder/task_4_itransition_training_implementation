@@ -554,11 +554,7 @@ export function UserTable() {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
                   <LastSeenIndicator
-                    lastSeen={
-                      user.lastLogin
-                        ? format(new Date(user.lastLogin), "PPp")
-                        : "Never"
-                    }
+                    lastSeen={user.lastLogin}
                     status={getUserStatus(user.lastLogin)}
                   />
                 </TableCell>
