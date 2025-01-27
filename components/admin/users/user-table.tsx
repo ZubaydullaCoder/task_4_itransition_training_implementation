@@ -53,6 +53,7 @@ import { ActionButton } from "./action-button";
 import { StatusCell } from "./status-cell";
 import { SortButton } from "./sort-button";
 import { SelectAllCheckbox } from "./select-all-checkbox";
+import { showSuccessToast } from "@/lib/toast-config";
 
 interface User {
   id: string;
@@ -244,6 +245,9 @@ export function UserTable() {
         (u: User) => u.email === session?.user?.email
       );
       if (currentUser?.email && selectedUsers.includes(currentUser.email)) {
+        showSuccessToast(
+          "You deleted your account. Redirecting to login page..."
+        );
         await signOut({ redirect: false });
         router.push("/login");
         return;
@@ -307,6 +311,9 @@ export function UserTable() {
 
       // If current user is deleted, redirect to login
       if (userEmail === session?.user?.email) {
+        showSuccessToast(
+          "You deleted your account. Redirecting to login page..."
+        );
         await signOut({ redirect: false });
         router.push("/login");
         return;

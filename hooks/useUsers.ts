@@ -40,7 +40,7 @@ export function useUsers(sortConfig?: SortConfig) {
 
         return data.users;
       } catch (error) {
-        toast.error("Failed to load users");
+        // toast.error("Failed to load users");
         throw error;
       }
     },
