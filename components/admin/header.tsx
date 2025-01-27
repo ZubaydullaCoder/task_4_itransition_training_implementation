@@ -22,7 +22,6 @@ interface HeaderProps {
 export function AdminHeader({ toggleSidebar }: HeaderProps) {
   const { setTheme } = useTheme();
   const { data: session } = useSession();
-  const router = useRouter();
 
   const handleSignOut = async () => {
     try {
