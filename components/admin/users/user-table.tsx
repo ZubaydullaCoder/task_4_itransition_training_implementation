@@ -127,7 +127,7 @@ const StatusCell = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center w-20">
+      <div className="flex items-center justify-center w-14">
         <Loader2 className="h-4 w-4 animate-spin text-primary-brand" />
       </div>
     );
@@ -169,7 +169,7 @@ export function UserTable() {
     if (!users) return [];
     if (filterState.status === "all") return users;
 
-    return users.filter((user) => {
+    return users.filter((user: User) => {
       const matchesStatus =
         filterState.status === "all" ||
         (filterState.status === "active" && user.status === "Active") ||
@@ -195,7 +195,7 @@ export function UserTable() {
     }
 
     const blockedCount = filteredSelectedUsers.filter(
-      (user) => user.status === "Blocked"
+      (user: User) => user.status === "Blocked"
     ).length;
 
     if (blockedCount === 0) return "all-active";
@@ -529,7 +529,7 @@ export function UserTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.map((user) => (
+            {filteredUsers.map((user: User) => (
               <TableRow
                 key={user.id}
                 className={cn(
