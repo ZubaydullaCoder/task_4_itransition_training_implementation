@@ -11,12 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User, Mail, Lock, Building, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { showSuccessToast, showErrorToast } from "@/lib/toast-config";
+import { showSuccessToast } from "@/lib/toast-config";
 
 export function RegisterForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
 
   const {
     register,
@@ -29,6 +30,8 @@ export function RegisterForm() {
   const onSubmit = async (data: RegisterInput) => {
     try {
       setIsLoading(true);
+      setError("");
+
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -41,17 +44,19 @@ export function RegisterForm() {
         throw new Error(result.error);
       }
 
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
       // Show success message
-      showSuccessToast("Account created successfully! Redirecting to login...");
+      showSuccessToast("Account created successfully! Redirected to login...");
 
       // Redirect after a short delay
       setTimeout(() => {
         router.push("/login");
       }, 2000);
     } catch (error) {
-      showErrorToast(
-        error instanceof Error ? error.message : "Something went wrong"
-      );
+      setError(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setIsLoading(false);
     }
@@ -59,6 +64,11 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {error && (
+        <div className="p-3 rounded-md bg-red-50 text-red-500 text-sm">
+          {error}
+        </div>
+      )}
       <div className="space-y-2">
         <Label htmlFor="name">Name</Label>
         <div className="relative">

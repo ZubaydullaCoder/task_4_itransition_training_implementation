@@ -10,12 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { showErrorToast, showSuccessToast } from "@/lib/toast-config";
+import { showSuccessToast } from "@/lib/toast-config";
 
 export function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
 
   const {
     register,
@@ -28,6 +29,8 @@ export function LoginForm() {
   const onSubmit = async (data: LoginInput) => {
     try {
       setIsLoading(true);
+      setError("");
+
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
@@ -35,7 +38,8 @@ export function LoginForm() {
       });
 
       if (result?.error) {
-        showErrorToast(result.error);
+        // showErrorToast(result.error);
+        setError(result.error);
         return;
       }
 
@@ -50,8 +54,8 @@ export function LoginForm() {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Something went wrong";
-
-      showErrorToast(errorMessage);
+      setError(errorMessage);
+      // showErrorToast(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -59,6 +63,11 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {error && (
+        <div className="p-3 rounded-md bg-red-50 text-red-500 text-sm flex justify-center">
+          {error}
+        </div>
+      )}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <div className="relative">
