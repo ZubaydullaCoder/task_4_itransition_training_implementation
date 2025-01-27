@@ -14,7 +14,7 @@ export function SelectAllCheckbox({
   onSelectAll,
 }: SelectAllCheckboxProps) {
   const isAllSelected =
-    users?.length > 0 && selectedUsers.length === users?.length;
+    users && users.length > 0 && selectedUsers.length === users.length;
 
   return (
     <Checkbox

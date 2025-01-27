@@ -513,7 +513,7 @@ export function UserTable() {
           <TableBody>
             {filteredUsers.map((user: User) => (
               <TableRow
-                key={user.id}
+                key={user.email}
                 className={cn(
                   selectedUsers.includes(user.email) && "bg-muted/50"
                 )}
